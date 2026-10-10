@@ -45,8 +45,8 @@ services:
     stop_grace_period: 120s
 
   amilys-emby:
-    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver:latest
-#    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver_arm64v8:latest
+#    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver:latest
+    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver_arm64v8:latest
     container_name: amilys-emby
     environment:
 #      - HTTP_PROXY=http://127.0.0.1:20171
