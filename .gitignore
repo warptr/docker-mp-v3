@@ -22,3 +22,7 @@ __pycache__/
 !/docker/moviepilot-v3/config/temp/
 /docker/moviepilot-v3/config/temp/*
 !/docker/moviepilot-v3/config/temp/plugin_backup/
+
+# Preserve the requested qBittorrent and Emby configuration presets in the repository.
+!/docker/qbittorrent/config/**
+!/docker/amilys-emby/config/**
