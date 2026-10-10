@@ -1,6 +1,11 @@
 name: Sync MoviePilot Core Tarballs to GitHub Release
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/scripts/package_core.py'
+      - '.github/workflows/sync-core.yml'
   workflow_dispatch:
   schedule:
     - cron: '10 20 * * 3'
