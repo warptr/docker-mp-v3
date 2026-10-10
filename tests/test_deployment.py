@@ -132,9 +132,9 @@ class DeploymentTests(unittest.TestCase):
                 z.writestr("docker-main/docker/moviepilot-v3/.env", env)
         self.route_map["archive/refs/heads"] = {"file": str(archive)}
 
-    def run_script(self, script, stdin, *, timeout=15, **env):
+    def run_script(self, script, stdin, *, timeout=15, args=(), **env):
         self.routes.write_text(json.dumps(self.route_map))
-        return subprocess.run([str(self.bin / "bash"), str(REPO / script)],
+        return subprocess.run([str(self.bin / "bash"), str(REPO / script), *args],
                               input=stdin, text=True, capture_output=True,
                               cwd=self.root, env=dict(self.env, **env), timeout=timeout)
 
@@ -389,9 +389,23 @@ exec '{real_mv}' "$@"
         self.assertNotEqual(result.returncode, 0)
 
     def test_chooser_runs_current_menu_without_second_read(self):
+        self.route_map["api.github.com"] = {"body": '[{"name":"dsm"},{"name":"main"}]'}
         self.route_map["raw.githubusercontent.com"] = {"body": (REPO / "mp-setup.sh").read_text()}
-        result = self.run_script("mp-setup-choose.sh", f"01\n{self.base}\n{self.media}\n")
+        self.make_install_archive(env=f'DOCKER_PATH={self.base}\nMEDIA_PATH="{self.media}"\n')
+        result = self.run_script("mp-setup-choose.sh", "01\n\n\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count("请选择你要部署的分支："), 1)
+        self.assertIn("-> 已选择分支: dsm", result.stdout)
+        requests = [json.loads(line)["url"] for line in self.netlog.read_text().splitlines()]
+        self.assertEqual(sum("api.github.com" in url for url in requests), 1)
+        self.assertTrue(any("/dsm.zip" in url for url in requests))
+        self.assertTrue((self.base / "moviepilot-v3/core").is_dir())
+
+    def test_invalid_preset_branch_is_rejected_before_download(self):
+        result = self.run_script("mp-setup.sh", "", args=("../main",))
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(self.netlog.exists())
+        self.assertFalse(self.base.exists())
 
 
 if __name__ == "__main__":
