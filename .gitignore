@@ -15,14 +15,10 @@ __pycache__/
 *.log
 .env.local
 
-# Carry only the requested MoviePilot database and plugin backups as installation presets.
-/docker/moviepilot-v3/config/*
-!/docker/moviepilot-v3/config/user.db
-!/docker/moviepilot-v3/config/plugins_backup/
-!/docker/moviepilot-v3/config/temp/
-/docker/moviepilot-v3/config/temp/*
-!/docker/moviepilot-v3/config/temp/plugin_backup/
+# Keep the complete deployment presets requested for this independent project.
+# These include configuration, database and plugin assets copied from V2.
+!/docker/**
 
-# Preserve the requested qBittorrent and Emby configuration presets in the repository.
-!/docker/qbittorrent/config/**
-!/docker/amilys-emby/config/**
+# Temporary directories used by local regression tests.
+/nas-tests-*/
+/tmp.*/
