@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 .idea/
 .venv/
-dist/
+/dist/
 **/core/
 **/core.backup.*/
 **/.core-update*/
