@@ -132,11 +132,11 @@ class DeploymentTests(unittest.TestCase):
                 z.writestr("docker-main/docker/moviepilot-v3/.env", env)
         self.route_map["archive/refs/heads"] = {"file": str(archive)}
 
-    def run_script(self, script, stdin, **env):
+    def run_script(self, script, stdin, *, timeout=15, **env):
         self.routes.write_text(json.dumps(self.route_map))
         return subprocess.run([str(self.bin / "bash"), str(REPO / script)],
                               input=stdin, text=True, capture_output=True,
-                              cwd=self.root, env=dict(self.env, **env), timeout=15)
+                              cwd=self.root, env=dict(self.env, **env), timeout=timeout)
 
     def run_update(self, **env):
         return self.run_script("update_mp_core.sh", str(self.base) + "\n", **env)
@@ -155,6 +155,31 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual((self.base / "moviepilot-v3/core/old-browser").read_text(), "working old browser")
         self.assertFalse((self.base / "moviepilot-v3/.core-update.lock").exists())
         self.assertFalse(list((self.base / "moviepilot-v3").glob(".core-update.*")))
+
+    def test_complete_repository_installs_without_existing_v2(self):
+        archive = self.root / "complete-repository.zip"
+        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as z:
+            for source in (REPO / "docker").rglob("*"):
+                if source.is_file():
+                    z.write(source, "docker-mp-v3-main/" + source.relative_to(REPO).as_posix())
+            for name in ["media.zip", "update_mp_core.sh"]:
+                z.write(REPO / name, "docker-mp-v3-main/" + name)
+        self.route_map["archive/refs/heads"] = {"file": str(archive)}
+        result = self.run_script("mp-setup.sh", f"1\n{self.base}\n{self.media}\n", timeout=60)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse((self.base / "moviepilot-v2").exists())
+        for source in (REPO / "docker").rglob("*"):
+            if source.is_file() and source.name != ".env":
+                installed = self.base / source.relative_to(REPO / "docker")
+                self.assertTrue(installed.is_file(), str(installed))
+                self.assertEqual(installed.read_bytes(), source.read_bytes(), str(installed))
+        with zipfile.ZipFile(REPO / "media.zip") as z:
+            for item in z.infolist():
+                if not item.is_dir():
+                    self.assertEqual((self.media / item.filename).read_bytes(), z.read(item))
+        requests = [json.loads(line)["url"] for line in self.netlog.read_text().splitlines()]
+        self.assertTrue(any("warptr/docker-mp-v3/archive/" in url for url in requests))
+        self.assertFalse(any("warptr/docker/" in url for url in requests))
 
     def test_v3_install_preserves_existing_v2_instance(self):
         old = self.base / "moviepilot-v2"
