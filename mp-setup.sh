@@ -103,30 +103,36 @@ read_env_path() {
     printf '%s' "$result"
 }
 
-echo "正在连接 GitHub 获取分支列表..."
 TMP_DIR=$(mktemp -d)
-API_URL="https://api.github.com/repos/warptr/docker-mp-v3/branches"
-download_file "$API_URL" "$TMP_DIR/branches.json"
-RESPONSE=$(cat "$TMP_DIR/branches.json")
-# 保留现有菜单和分支选择方式。
-mapfile -t BRANCHES < <(echo "$RESPONSE" | tr -d ' ' | grep -o '"name":"[^"]*"' | awk -F'"' '{print $4}')
-if [ "${#BRANCHES[@]}" -eq 0 ]; then
-    echo "❌ 未能获取有效的分支列表。" >&2
+if [ "$#" -eq 0 ]; then
+    echo "正在连接 GitHub 获取分支列表..."
+    API_URL="https://api.github.com/repos/warptr/docker-mp-v3/branches"
+    download_file "$API_URL" "$TMP_DIR/branches.json"
+    RESPONSE=$(cat "$TMP_DIR/branches.json")
+    mapfile -t BRANCHES < <(echo "$RESPONSE" | tr -d ' ' | grep -o '"name":"[^"]*"' | awk -F'"' '{print $4}')
+    if [ "${#BRANCHES[@]}" -eq 0 ]; then
+        echo "❌ 未能获取有效的分支列表。" >&2
+        exit 1
+    fi
+    echo "请选择你要部署的分支："
+    for i in "${!BRANCHES[@]}"; do echo "  $((i+1))) ${BRANCHES[$i]}"; done
+    read -r -p "请输入对应数字并回车: " choice
+    if ! [[ "$choice" =~ ^[0-9]{1,3}$ ]]; then
+        echo "❌ 输入无效。" >&2
+        exit 1
+    fi
+    choice=$((10#$choice))
+    if [ "$choice" -lt 1 ] || [ "$choice" -gt "${#BRANCHES[@]}" ]; then
+        echo "❌ 输入无效。" >&2
+        exit 1
+    fi
+    SELECTED_BRANCH="${BRANCHES[$((choice-1))]}"
+elif [ "$#" -eq 1 ] && [[ "$1" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]]; then
+    SELECTED_BRANCH="$1"
+else
+    echo "❌ 请提供一个有效的分支名，或不带参数运行以选择分支。" >&2
     exit 1
 fi
-echo "请选择你要部署的分支："
-for i in "${!BRANCHES[@]}"; do echo "  $((i+1))) ${BRANCHES[$i]}"; done
-read -r -p "请输入对应数字并回车: " choice
-if ! [[ "$choice" =~ ^[0-9]{1,3}$ ]]; then
-    echo "❌ 输入无效。" >&2
-    exit 1
-fi
-choice=$((10#$choice))
-if [ "$choice" -lt 1 ] || [ "$choice" -gt "${#BRANCHES[@]}" ]; then
-    echo "❌ 输入无效。" >&2
-    exit 1
-fi
-SELECTED_BRANCH="${BRANCHES[$((choice-1))]}"
 echo "-> 已选择分支: $SELECTED_BRANCH"
 
 ZIP_URL="https://github.com/warptr/docker-mp-v3/archive/refs/heads/${SELECTED_BRANCH}.zip"
