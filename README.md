@@ -8,7 +8,8 @@
 - MoviePilot 容器、配置及浏览器内核目录使用 `moviepilot-v3`；浏览器包发布到本仓库的 `v3-latest` Release。
 - 保留 `dsm`、`fnos`、`fnos-arm`、`qnap`、`ugreen`、`zspace`、`zspace-arm`、`zspace-z4s` 平台分支及对应的路径、架构配置。
 - 按要求携带原 MoviePilot 的 `config/user.db`、`config/plugins_backup/` 和 `config/temp/plugin_backup/`。备份目录不会自动变为已启用插件；请在 V3 中检查插件是否需要适配或重新安装。
-- 缓存、日志、旧浏览器核心、IDE 配置及原媒体文件不包含在新仓库中。`media.zip` 只创建空目录预设。
+- 同时携带原项目的完整 `docker/qbittorrent/config/` 和 `docker/amilys-emby/config/` 配置目录。
+- MoviePilot 的缓存、日志、旧浏览器核心、IDE 配置及原媒体文件不包含在新仓库中。`media.zip` 只创建空目录预设。
 
 仓库中的数据库是安装预设，不是运行中的数据库。首次安装会复制该数据库到新的 `moviepilot-v3/config`，V3 启动时会执行数据库升级；原项目中的数据库保持原样。是否出现首次初始化页面以数据库中已有的账号数据为准。
 
