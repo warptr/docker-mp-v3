@@ -43,7 +43,7 @@ services:
 #      - "13000:13000"
     restart: always
     stop_grace_period: 120s
-
+    privileged: true  #Z4S必加参数
   amilys-emby:
     image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver:latest
 #    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver_arm64v8:latest
