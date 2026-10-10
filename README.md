@@ -1,6 +1,6 @@
 # MoviePilot V3 NAS 部署项目
 
-独立维护的 MoviePilot V3 一键部署仓库，目标地址为 `warptr/docker-mp-v3`。基于旧项目 `warptr/docker` 的部署脚本重新初始化 Git，不继承旧仓库的提交历史和远程配置。
+独立维护的 MoviePilot V3 一键部署仓库，仓库地址为 [warptr/docker-mp-v3](https://github.com/warptr/docker-mp-v3)。基于旧项目 `warptr/docker` 的部署脚本重新初始化 Git，不继承旧仓库的提交历史和远程配置。
 
 ## 与 V2 的关系
 
@@ -23,7 +23,7 @@
 ## 发布前准备
 
 1. 创建并推送新 GitHub 仓库与全部平台分支。
-2. 在 GitHub Actions 中手动运行 `Sync MoviePilot Core Tarballs to GitHub Release`，等待 amd64 和 arm64 的包都发布到 `v3-latest`。
+2. `main` 分支的内核打包脚本或工作流变更后自动运行内核发布，也支持定时同步及手动运行 `Sync MoviePilot Core Tarballs to GitHub Release`。等待 amd64 和 arm64 的包都发布到 `v3-latest`。
 3. 在测试 NAS 上验证镜像拉取、账号登录、插件、订阅、下载和整理流程。
 
 以下远程一键命令要求仓库公开且内核 Release 已准备好。私有仓库不支持这些匿名下载命令，请先准备认证下载方式再分发。
