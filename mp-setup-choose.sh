@@ -77,7 +77,5 @@ if [ "$SCRIPT_OK" != true ]; then
     echo "❌ 无法获取安装脚本。" >&2
     exit 1
 fi
-# 保留现有菜单序号传递方式，不调整平台/分支结构。
-sed "s/read -[rp ]*.*choice.*/choice=$choice/g" "$TMP_SCRIPT" > "$TMP_DIR/selected-setup.sh"
-bash -n "$TMP_DIR/selected-setup.sh"
-bash "$TMP_DIR/selected-setup.sh"
+# 直接传递分支名，安装脚本无需重新获取或展示分支列表。
+bash "$TMP_SCRIPT" "$SELECTED_BRANCH"
