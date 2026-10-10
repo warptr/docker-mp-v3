@@ -14,8 +14,8 @@ services:
       - '${MEDIA_PATH}:/media'
       - '${MEDIA_PATH}/下载:/downloads'
     network_mode: "host"
-#    ports:
-#      - "19990:19990"
+    ports:
+      - "19990:19990"
     restart: always
 
   moviepilot:
@@ -39,14 +39,14 @@ services:
       - '${DOCKER_PATH}/qbittorrent/config/qBittorrent/BT_backup:/BT_backup'
 #      - '${DOCKER_PATH}/transmission/config/torrents:/torrents'
     network_mode: "host"
-#    ports:
-#      - "13000:13000"
+    ports:
+      - "13000:13000"
     restart: always
     stop_grace_period: 120s
 
   amilys-emby:
-    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver:latest
-#    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver_arm64v8:latest
+#    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver:latest
+    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver_arm64v8:latest
     container_name: amilys-emby
     environment:
 #      - HTTP_PROXY=http://127.0.0.1:20171
@@ -60,8 +60,22 @@ services:
       - '${DOCKER_PATH}/amilys-emby/config:/config'
       - '${MEDIA_PATH}:/media'
     network_mode: "host"
-#    ports:
-#      - "18096:18096"
-    restart: always
-    devices:
-      - /dev/dri:/dev/dri
+    ports:
+      - "18096:18096"
+    restart: unless-stopped
+#    devices:
+#      - /dev/dri:/dev/dri
+#      - /dev/dma_heap:/dev/dma_heap
+#      - /dev/mali0:/dev/mali0
+#      - /dev/rga:/dev/rga
+#      - /dev/mpp_service:/dev/mpp_service
+#      - /dev/mpp-service:/dev/mpp-service
+#      - /dev/iep:/dev/iep
+#      - /dev/vpu_service:/dev/vpu_service
+#      - /dev/vpu-service:/dev/vpu-service
+#      - /dev/hevc_service:/dev/hevc_service
+#      - /dev/hevc-service:/dev/hevc-service
+#      - /dev/rkvdec:/dev/rkvdec
+#      - /dev/rkvenc:/dev/rkvenc
+#      - /dev/vepu:/dev/vepu
+#      - /dev/h265e:/dev/h265e
