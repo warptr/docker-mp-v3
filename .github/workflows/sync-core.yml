@@ -1,0 +1,61 @@
+name: Sync MoviePilot Core Tarballs to GitHub Release
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '10 20 * * 3'
+
+permissions:
+  contents: write
+
+# 排队执行整次发布，避免手动触发和定时任务覆盖同一组资源。
+concurrency:
+  group: moviepilot-core-release
+  cancel-in-progress: false
+
+jobs:
+  package-core:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download, verify and package core
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/package_core.py --architecture '${{ matrix.architecture }}' --output dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-${{ matrix.architecture }}
+          path: dist/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  publish-core:
+    needs: package-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: core-*
+          merge-multiple: true
+          path: dist
+      - name: Verify both architectures and publish once
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd dist
+          for architecture in amd64 arm64; do
+            test -s "mp-core-all-${architecture}.tar.gz.source.json"
+            sha256sum -c "mp-core-all-${architecture}.tar.gz.sha256"
+          done
+          if ! gh release view v3-latest --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create v3-latest --repo "$GITHUB_REPOSITORY" \
+              --title "MoviePilot Core v3-latest" \
+              --notes "MoviePilot CloakBrowser 官方内核包（每周三自动同步；附 SHA256 校验文件及上游版本信息）"
+          fi
+          gh release upload v3-latest ./* --clobber --repo "$GITHUB_REPOSITORY"

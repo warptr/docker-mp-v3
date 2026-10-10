@@ -1,0 +1,24 @@
+# Generated files and local runtime data
+__pycache__/
+*.py[cod]
+.idea/
+.venv/
+dist/
+**/core/
+**/core.backup.*/
+**/.core-update*/
+**/.nas-deploy-backups/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite*
+*.log
+.env.local
+
+# Carry only the requested MoviePilot database and plugin backups as installation presets.
+/docker/moviepilot-v3/config/*
+!/docker/moviepilot-v3/config/user.db
+!/docker/moviepilot-v3/config/plugins_backup/
+!/docker/moviepilot-v3/config/temp/
+/docker/moviepilot-v3/config/temp/*
+!/docker/moviepilot-v3/config/temp/plugin_backup/

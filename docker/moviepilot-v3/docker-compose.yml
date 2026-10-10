@@ -1,0 +1,67 @@
+services:
+  qbittorrent:
+    image: registry.cn-guangzhou.aliyuncs.com/alyhub/linuxserver-qbittorrent:4.6.7
+#    5版本 image: registry.cn-guangzhou.aliyuncs.com/alyhub/linuxserver-qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Asia/Shanghai
+      - WEBUI_PORT=19990
+      # - TORRENTING_PORT=50004
+    volumes:
+      - '${DOCKER_PATH}/qbittorrent/config/:/config'
+      - '${MEDIA_PATH}:/media'
+      - '${MEDIA_PATH}/下载:/downloads'
+    network_mode: "host"
+#    ports:
+#      - "19990:19990"
+    restart: always
+
+  moviepilot:
+    image: jxxghp/moviepilot-v3:latest
+    container_name: moviepilot-v3
+    hostname: moviepilot-v3
+    stdin_open: true  # 是否打开标准输入流（交互模式），为 true 时容器可以保持运行并与用户交互
+    tty: true  # 是否分配伪终端，使容器的终端行为更像一个真实的终端
+    environment:
+      - NGINX_PORT=13000
+      - PORT=13001
+      - PUID=0
+      - PGID=0
+      - UMASK=000
+      - TZ=Asia/Shanghai
+      - MOVIEPILOT_AUTO_UPDATE=false
+    volumes:
+      - '${MEDIA_PATH}:/media'
+      - '${DOCKER_PATH}/moviepilot-v3/config:/config'
+      - '${DOCKER_PATH}/moviepilot-v3/core:/moviepilot/.cloakbrowser'
+      - '${DOCKER_PATH}/qbittorrent/config/qBittorrent/BT_backup:/BT_backup'
+#      - '${DOCKER_PATH}/transmission/config/torrents:/torrents'
+    network_mode: "host"
+#    ports:
+#      - "13000:13000"
+    restart: always
+    stop_grace_period: 120s
+
+  amilys-emby:
+    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver:latest
+#    image: registry.cn-guangzhou.aliyuncs.com/alyhub/amilys-embyserver_arm64v8:latest
+    container_name: amilys-emby
+    environment:
+#      - HTTP_PROXY=http://127.0.0.1:20171
+#      - HTTPS_PROXY=http://127.0.0.1:20171
+#      - NO_PROXY=localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12
+      - TZ=Asia/Shanghai
+      - PUID=0
+      - PGID=0
+      - GIDLIST=0
+    volumes:
+      - '${DOCKER_PATH}/amilys-emby/config:/config'
+      - '${MEDIA_PATH}:/media'
+    network_mode: "host"
+#    ports:
+#      - "18096:18096"
+    restart: always
+    devices:
+      - /dev/dri:/dev/dri
