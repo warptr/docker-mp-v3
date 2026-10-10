@@ -7,9 +7,10 @@
 - MoviePilot 镜像使用官方 `jxxghp/moviepilot-v3:latest`。
 - MoviePilot 容器、配置及浏览器内核目录使用 `moviepilot-v3`；浏览器包发布到本仓库的 `v3-latest` Release。
 - 保留 `dsm`、`fnos`、`fnos-arm`、`qnap`、`ugreen`、`zspace`、`zspace-arm`、`zspace-z4s` 平台分支及对应的路径、架构配置。
-- 按要求携带原 MoviePilot 的 `config/user.db`、`config/plugins_backup/` 和 `config/temp/plugin_backup/`。备份目录不会自动变为已启用插件；请在 V3 中检查插件是否需要适配或重新安装。
-- 同时携带原项目的完整 `docker/qbittorrent/config/` 和 `docker/amilys-emby/config/` 配置目录。
-- MoviePilot 的缓存、日志、旧浏览器核心、IDE 配置及原媒体文件不包含在新仓库中。`media.zip` 只创建空目录预设。
+- 完整保留原项目 `docker/` 下的部署资源，将 MoviePilot 目录改为 `moviepilot-v3`，其余内容按原文件复制，包括三个服务的配置、数据库、插件与备份、缓存及日志。
+- `media.zip` 沿用原项目的完整媒体预设包。三个服务的配置与媒体资源均随新仓库提供，安装时无需访问旧 V2 仓库或已有 V2 安装目录。
+- MoviePilot 的 `app.env`、`category.yaml`、`plugins/`、`plugins_backup/` 和 `temp/plugin_backup/` 均已携带。插件备份不会自动变为已启用插件；请在 V3 中检查插件是否需要适配或重新安装。
+- 不继承旧仓库的 `.git` 或 IDE 配置。浏览器内核通过本项目独立的 `v3-latest` Release 提供。
 
 仓库中的数据库是安装预设，不是运行中的数据库。首次安装会复制该数据库到新的 `moviepilot-v3/config`，V3 启动时会执行数据库升级；原项目中的数据库保持原样。是否出现首次初始化页面以数据库中已有的账号数据为准。
 
@@ -59,9 +60,9 @@ docker compose up -d --no-deps --force-recreate moviepilot
 
 ```bash
 bash -n mp-setup.sh && bash -n mp-setup-choose.sh && bash -n update_mp_core.sh
-python3 -m unittest discover -s tests -v
+TMPDIR="$PWD" python3 -m unittest discover -s tests -v
 ```
 
-回归测试使用临时目录、模拟网络和 Docker，不启动真实容器。浏览器内核打包使用 CloakHQ/CloakBrowser 的上游发布文件。
+回归测试使用临时目录、模拟网络和 Docker，不启动真实容器。完整安装测试包含所有真实配置文件；将临时目录放到当前磁盘目录可避免 NAS 的内存临时盘空间不足。浏览器内核打包使用 CloakHQ/CloakBrowser 的上游发布文件。
 
 官方参考：[安装指引](https://github.com/jxxghp/MoviePilot-Wiki/blob/main/install.md)、[升级说明](https://github.com/jxxghp/MoviePilot-Wiki/blob/main/upgrade.md)。
