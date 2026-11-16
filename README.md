@@ -4,7 +4,7 @@
 
 ## 与 V2 的关系
 
-- MoviePilot 镜像使用官方 `jxxghp/moviepilot-v3:latest`。
+- MoviePilot 镜像使用 `registry.cn-guangzhou.aliyuncs.com/alyhub/jxxghp-moviepilot-v3:latest`。
 - MoviePilot 容器、配置及浏览器内核目录使用 `moviepilot-v3`；浏览器包发布到本仓库的 `v3-latest` Release。
 - 保留 `dsm`、`fnos`、`fnos-arm`、`qnap`、`ugreen`、`zspace`、`zspace-arm`、`zspace-z4s` 平台分支及对应的路径、架构配置。
 - 完整保留原项目 `docker/` 下的部署资源，将 MoviePilot 目录改为 `moviepilot-v3`，其余内容按原文件复制，包括三个服务的配置、数据库、插件与备份、缓存及日志。
