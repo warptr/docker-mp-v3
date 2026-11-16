@@ -19,7 +19,7 @@ services:
     restart: always
 
   moviepilot:
-    image: jxxghp/moviepilot-v3:latest
+    image: registry.cn-guangzhou.aliyuncs.com/alyhub/jxxghp-moviepilot-v3:latest
     container_name: moviepilot-v3
     hostname: moviepilot-v3
     stdin_open: true  # 是否打开标准输入流（交互模式），为 true 时容器可以保持运行并与用户交互
